@@ -1,0 +1,506 @@
+#include<stdio.h>
+#include<string.h>
+#include<ctype.h>
+#include <stdlib.h>
+
+int c99types(char ch[100]);
+
+int checkTypedefRule(char text[100],int *arr);
+
+int *countOfWords(char text[100]);
+
+
+void evaluate(int a, int n, int co, int po, int max, int noOfLines, int i, char line[][max]) {
+	int ctr = 0, p1 = 0, p2 = 0, ctr1 = 0, ctr2 = 0;
+  	// checking for upper case name
+ 	 if (co == 0 && po == 0 && n != 0 && a == 0) {
+    		for (int j = 8; line[i][j] != (char) 32; j++) {
+      			if (islower(line[i][j])) ctr++;
+    			}
+    	if (ctr != 0){
+		 printf("\nLINE NUMBER %d: ERROR IN NAME\n", i + 1);}
+    	else{
+		 printf("\nLINE NUMBER %d: NO ERROR IN NAME\n", i + 1);}
+  	}
+  	if (a != 0 && co == 0) {
+    		for (int j = 8; line[i][j] != '('; j++) {
+      			if (islower(line[i][j]))
+		       		 ctr1++;
+   		 }
+    	if (ctr != 0){
+		 printf("\nLINE NUMBER %d: ERROR IN NAME\n", i + 1);}
+    	else{
+		 printf("\nLINE NUMBER %d: NO ERROR IN NAME\n", i + 1);}
+    	for (int j = 0; j < max; j++) {
+      		if (line[i][j] == ')'){
+			 p1++;}
+      		if (line[i][j] == '('){
+			 p2++;}
+    	}
+    	// checking for parenthesis
+    	if (p1 == 0 && p2 == 0) {
+      		printf("\nLINE NUMBER %d :ADD PARANTHESIS\n", i + 1);
+      		return;
+    	}
+    	if (p1 % p2 == 0){
+		 printf("\nLINE NUMBER %d:NO ERROR IN PARANTHESIS\n", i + 1);}
+    	else{
+		printf("\nLINE NUMBER %d: ADD OR REMOVE PARANTHESIS\n", i + 1);}
+  	}
+ 	 // checking for lowe case functon name
+  	if (co != 0 && po != 0) {
+    		for (int j = 8; line[i][j] != '('; j++) {
+      			if (isupper(line[i][j])){
+				 ctr2++;}
+    	}
+    	if (ctr2 != 0){
+		 printf("\nLINE NUMBER %d: ERROR IN FN NAME\n", i + 1);}
+    	else{
+		 printf("\nLINE NUMBER %d: NO ERROR IN FN NAME\n", i + 1);}
+  	}
+}
+
+
+int main(){
+
+    FILE *fp;
+    int c;
+    int noOfLines=0;
+    char text[100]; //FILE name
+    printf("Enter the file name: ");
+    scanf("%s",&text);
+
+
+
+    // open the current input file
+    fp = fopen(text,"r");
+
+    do {
+         c = getc(fp);// read character
+         if(c=='\n'){
+             noOfLines+=1;
+         }
+    }
+    while(c != EOF);  // loop until the end of file is reached
+
+    fclose(fp);
+    int arr[noOfLines];
+    int i=0;
+    int noOfChar=0;
+    int max=0;
+
+    fp = fopen(text,"r");
+
+    do {
+         c = getc(fp);// read character
+         if(c!='\n'){
+             noOfChar+=1;
+         }else{
+             if(noOfChar>max){
+                max=noOfChar;
+             }
+            arr[i]=noOfChar;
+            noOfChar=0;
+            i++;
+         }
+    }
+    while(c != EOF);  // loop until the end of file is reached
+
+    fclose(fp);
+    char line[noOfLines][max+1];
+    i = 0;
+    fp = fopen(text, "r");///////////////////////////////////////////////////////////////
+    while(fgets(line[i], max+2, fp))
+	{
+        line[i][strlen(line[i]) - 1] = '\0';
+        i++;
+    }
+fclose(fp);
+
+for(int i=0;i<noOfLines;i++){
+    for(int j=arr[i];j<max;j++){
+        line[i][j]=NULL;
+    }
+}
+for(int i=0;i<noOfLines;i++){
+    for(int j=0;j<max;j++){
+        printf("%c",line[i][j]);
+    }
+    printf("\n");
+}
+
+//Placing braces and spaces guidelines
+i=0;
+char str[20];
+char string[100][10]={"if","else","do","while","for","switch","int","char","float","double","void"};
+while(i<noOfLines){
+        int j=0;
+        int d=arr[i]-1;
+        str[0]='\0';//Clearing the string
+        while(j<arr[i]){  //Traversing through each character
+            if(isalpha(line[i][j])){ //Checking whether the character is an alphabet
+                char append=line[i][j];
+                strncat(str,&append,1);//Appending the character to the string
+               //Checking whether the opening brace is on the same line
+                if(strcmp(str,string[2])==0){ //Checking whether the string is equivalent "do"
+                        if(line[i][d]!='{'){
+                            printf("Guideline violated in line.no %d\n The open brace must be present in the same line where the 'do' is present\n",i+1); //No '{' found, so error in the line
+
+                    }
+int stop_2=0;
+                    for(i=i+1; ;i++){
+                        j=0;int stop=0;
+
+                        while(j<arr[i]){//Traversing to find closing brace
+                            if(line[i][j]=='}'){
+
+                                while(j<arr[i]){//once closing brace is found traversing again to find 'while'
+                                    if(line[i][j]=='w'){
+
+                                        stop=1;
+                                        break;
+
+                                    }
+                                    j++;
+                                    if(j==arr[i]){
+                                       printf("Guideline violated in line.no %d\n while must be present in the same line where closing brace is present\n",i+1);
+                                    stop=1;
+                                    stop_2=1;
+
+                                    }
+                                }
+                                break;
+                                stop=1;
+                            }
+                            j++;
+                        }
+                        if(stop==1)
+                        {
+
+                            break;
+                        }
+                    }
+                    if(stop_2==1) i++;
+                }
+                else if(strcmp(str,string[3])==0 || strcmp(str,string[4])==0 || strcmp(str,string[5])==0 || strcmp(str,string[0])==0){//Checking whether the string is equivalent to 'while' or 'for' or 'switch' or 'if'
+                        if(line[i][d]!='{'){
+                            printf("Guideline violated in line.no %d\n The open brace must be present in the same line where the %s condition is present\n",i+1,str);
+                        }
+                    }
+
+                else if(strcmp(str,string[1])==0){//Checking whether the string is equivalent to 'else'
+                        if(line[i][d]!='{'){
+                            printf("Guideline violated in line.no %d\nThe open brace must be present in the same line where the condition is present\n",i+1);
+                        }
+                    int k=0;
+                    while(k<d){//traversing in the same line from the begining to find the presence of closing brace
+                        if(line[i][k]=='}'){
+                            break;//Once closing brace is found traversal has been stopped
+                        }
+                        k++;
+                        if(k==d){//No closing brace found before else,therefore printing error in the line
+                            printf("Guideline violated in line.no %d\nelse keyword must be in the same line where there is closing brace for if\n",i+1);
+                            break;
+                        }
+                    }
+                    break;
+                }
+                else if(strcmp(str,string[6])==0 || strcmp(str,string[7])==0 || strcmp(str,string[8])==0 || strcmp(str,string[9])==0 || strcmp(str,string[10])==0){//checking whether the string is equivalent to 'int' or 'char' or 'float' or 'double' or 'void'
+                      if(line[i][d]=='{'){//if the opening brace is found in the same line then it is a error
+                                printf("Guideline violated in line.no %d\nThe opening brace must be in the next line for user defined functions\n",i+1);
+
+                }
+                }
+                }//end of 'if' that checks whether the character is an alphabet
+                else{
+                        str[0]='\0';//if the character is not an alphabet the clear the string 'str'
+                        if(line[i][j]=='}'){
+                        //to ensure there is no character before a closing brace in the same line
+                            if(j!=0){
+                            int b=j;
+                                for(b=b-1;b>=0;b--){//traversing
+                                    if(line[i][b]!=' '){//if the character present is not equivalent to empty space then print error
+                                        printf("Guideline violated in line.no %d\nThe closing brace must be always in a newline\n",i+1);
+                                        break;
+                                    }
+                                }
+                            }
+                            //to ensure there is no character after a closing brace in the same line except for while and else
+                            int c=j;
+                            for(c=c+1;c<arr[i];c++){
+                            if(line[i][c]=='w' || line[i][c]=='e'){
+                            break;
+                            }
+                            else if(line[i][c]!=' '){
+                            printf("Guideline violated in line.no %d\nThe closing brace must be always in a newline2\n",i+1);
+                            break;
+                            }
+                            }
+
+                        }
+
+                }
+                j++;
+            }
+            i++;
+        }
+
+//typedef guidelines
+int *p;
+p=countOfWords(text);
+checkTypedefRule(text,p);
+
+//functions guidelines
+for(int i=0;i<noOfLines;i++){
+    int size=arr[i];
+    char *s=(char *)malloc(sizeof(char)*size);
+    for(int j=0;j<arr[i];j++){
+        *(s+j)=line[i][j];
+        //check if the line starts with any data type
+        if((!strcmp(s,"int") || !strcmp(s,"float") || !strcmp(s,"void") || !strcmp(s,"bool")
+           || !strcmp(s,"char") || !strcmp(s,"double") || !strcmp(s,"unsigned")
+                || !strcmp(s,"signed") || !strcmp(s,"short"))&& line[i][arr[i]-1]!=';'){
+            //Check for capital letters in function name
+            for(int k=j+1;k<arr[i];k++){
+                if(line[i][k]=='('){
+                    int z=k-1;
+                    while(line[i][z]!=' '){
+                        if(isupper(line[i][z])){
+                            printf("Functions guideline violated\n");
+                            printf("%s-%d %s","Line",i+1,"Don't use upper case for function name\n");
+                            break;
+                        }
+                        z--;
+                    }
+                    break;
+                }
+            }
+            //Check if the curly braces is opened in new line
+            if(line[i][arr[i]-1]=='{'){
+                printf("Functions guideline violated\n");
+                printf("%s-%d %s\n","Line",i+1,"Open bracket in new line\n");
+
+            }
+            //Check for a blank line after the opening curly braces
+            else if(line[i+1][0]=='{'  && arr[i+1]>1){
+                printf("Functions guideline violated\n");
+                printf("%s-%d %s","Line",i+2,"Start coding from a new line\n");
+            }
+
+
+
+        }
+    }
+}
+//commenting guidelines
+int slc=1;
+  int mlc=1;
+  char A[] = "*";
+  char S[] = "/";
+  char Q[] ="?";
+
+  for (int i=0;i<noOfLines;i++)
+  {
+     for (int j=0; j<max; j++)
+     {
+      if ( strcmp(line[i][j],S) ==0 && strcmp(line[i][j+1],A) ==0 && j==0) // Checking for starting of commenting line
+        {
+          if (strcmp(line[i][j+2],Q) ==0) // Checking violations of Multi-line commenting
+          {
+            printf("Multi-line Comment no %d:-",mlc);
+            printf("\n");
+            printf("Violations are as follows: \n");
+            for (int m=i+1; m<noOfLines;m++)  // Looping for checking each row's initial character
+            {
+               if (strcmp(line[m][0],A)!=0)  // Checking is there Asterisk or not
+               {
+                   printf("Asterisk is missing in %d line\n",m+1);
+
+               }
+               else if (strcmp(line[m][0],A)==0 && strcmp(line[m][1],S)==0 && strcmp(line[m][2],Q)!=0 ) // Checking is there words after end of commenting
+               {
+                   printf("NO Words should present after End of comment in %d line\n",m+1);
+                   break;
+               }
+
+               else if (strcmp(line[m][0],A)==0 && strcmp(line[m][1],S)==0 && strcmp(line[m][2],Q)==0 ) // Checking for end of commenting
+               {
+                   break;
+               }
+
+            }
+            mlc++;
+            printf("\n");
+          }
+          else // Checking violations of Single-line commenting
+          {
+             printf("Single-line Comment no %d:-",slc);
+             printf("\n");
+             printf("Violations are as follows: \n");
+             for (int l=j+2;l<c;l++) // Looping for each character in a same row
+             {
+                  if (strcmp(line[i][l],A)==0 && strcmp(line[i][l+1],S)==0 && strcmp(line[i][l+2],Q)!=0) // Checking is there words after end of commenting
+                  {
+                      printf("NO words should present after End of Comment in %d line\n",i+1);
+                      break;
+
+                  }
+                  else if (strcmp(line[i][l],A)==0 && strcmp(line[i][l+1],S)==0 && strcmp(line[i][l+2],Q)==0) // Checking is there vioaltion
+                  {
+                      printf("NO Guidelines violation in Single-line Comment\n");
+                      break;
+                  }
+                  else if (strcmp(line[i][l],A)!=0 && strcmp(line[i][l+1],S)!=0 && strcmp(line[i][l+2],Q)==0) // Checking is there characters after end of commenting
+                  {
+                      printf("There is No, Ending of Single-line Comment in %d line \n",i+1);
+                      break;
+                  }
+
+             }
+             slc++;
+             printf("\n");
+
+
+          }
+
+    }
+          else if (strcmp(line[i][j],S) ==0 && strcmp(line[i][j+1],A) ==0 && strcmp(line[i][0],S)==0) // Checking is there words before start of commenting
+          {
+              printf("No words should present before Start of comment in %d line \n",j);
+              printf("\n");
+          }
+
+        }
+      }
+
+//Macros and enums guidelines
+//checking for macros
+int a = 0, pa = 0, n = 0, co = 0;
+for (int i = 0; i < noOfLines; i++) {
+    		if (!(line[i][0] == '#' && line[i][1] == 'd' && line[i][2] == 'e' && line[i][3] == 'f' && line[i][4] == 'i' && line[i][5] == 'n' && line[i][6] == 'e')) {
+     			 printf("\nNOT A MACRO\n");
+      			 continue;
+   	 }
+   	 // finding number of numbers,paranthesis,operators and commas
+    	for (int j = 0; j < max; j++) {
+     		 if (line[i][j] == '0' || line[i][j] == '1' || line[i][j] == '2' || line[i][j] == '3' || line[i][j] == '4' || line[i][j] == '5' || line[i][j] == '6' || line[i][j] == '7' || line[i][j] == '8' || line[i][j] == '9') {
+       			 n++;
+    		  }
+     		 if (line[i][j] == '+' || line[i][j] == '-' || line[i][j] == '*' || line[i][j] == '/' || line[i][j] == '%' || line[i][j] == '|' || line[i][j] == '&' || line[i][j] == '!' || line[i][j] == '=' || line[i][j] == '>' || line[i][j] == '<') {
+       			 a++;
+     		 }
+     		 if (line[i][j] == (char) 40 || line[i][j] == (char) 41) {
+      			  pa++;
+      		 }
+      		 if (line[i][j] == ',') {
+      			  co++;
+      		}
+   	 }
+    	// passing parameters to function
+    	evaluate(a, n, co, pa, max, noOfLines, i, line);
+  	}
+
+//indentation guidelines
+for(int i=0;i<noOfLines;i++){
+   int size=arr[i];
+    char *s=(char *)malloc(sizeof(char)*size);
+    for(int j=0;j<arr[i];j++){
+        *(s+j)=line[i][j];
+            if(strcmp(&line[i][arr[i]-1],"{")==1){
+                printf("%s","Indentation guideline violated in line\n");
+                printf("%s-%d %s","Line",i+1,"8 space indendation is required");
+            }
+            break;
+            }
+    }
+
+
+
+
+
+
+
+}
+int c99types(char ch[100]) {
+    int len=strlen(ch);
+    if ( strcmp( ch+len-2,"_t") == 0 ) {
+        return 0;
+       }
+    else {
+        return 1;
+       }
+}
+
+int checkTypedefRule(char text[100],int *arr) {
+
+     FILE *fpr;
+     int i=0,j=0,lineno=1,count=0;
+     char word[100];
+
+
+     fpr=fopen(text,"r");
+
+       while(fscanf(fpr,"%s",word) != EOF)
+       {
+          ++j;
+          if( j == arr[i]) {
+             lineno=i+1;
+             ++i;
+             j=0;
+          }
+
+          if(count==1) {
+                if ( c99types(word) == 0 ) {    //standard c99types are acceptable
+
+                          printf("Note : line no. %d: %s type can be used and it is not mandatory\n",lineno+1,word);
+                }
+                else if ( strcmp(word,"unsigned") == 0 ) {   //use when you don't have a reason for 'int' or 'long'
+
+                          printf("Note : line no. %d: %s int or %s long can be used only when there is clear reason otherwise don't use typedef\n",lineno+1,word,word);
+                }
+                else  if ( strcmp(word,"struct") == 0 ) {
+                         printf("Warning : line no. %d: Avoid using %s and pointers \n",lineno+1,word);
+                         printf("Note : line no. %d: In %s and pointers don't use typedef unless it has long variables \n",lineno+1,word);
+                }
+                else  {
+                         printf("Note : line no. %d: besure to use %s as typedef to hide the object ",lineno+1,word);
+                }
+
+         }
+         count=0;
+         if ( strcmp(word,"typedef")== 0 ) {
+                count=1;
+         }
+       }
+       fclose(fpr);
+}
+
+int *countOfWords(char text[100]) {
+   FILE *fp;
+   int nOflines=0,i=0,nOfwords=0,j=0;
+   char str[1000];
+   static int arr[1000];
+   fp=fopen(text,"r");
+   while(fgets(str,sizeof(str),fp)!=NULL) {
+        ++nOflines;
+        while(str[i]!='\0') {
+                if(str[i-1]!=' ' && str[i]==' '&& str[i+1]!=' ') {
+                     ++nOfwords;
+                }
+                i++;
+        }
+        arr[j]=nOfwords+1;
+        nOfwords=0;
+        i=0;
+        j++;
+     }
+    fclose(fp);
+    return arr;
+
+     }
+
+
+
+
+
+
